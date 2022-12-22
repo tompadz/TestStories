@@ -26,8 +26,10 @@ import com.google.android.material.progressindicator.CircularProgressIndicator
 import com.google.android.material.snackbar.Snackbar
 import com.partnerkin.teststories.utils.AndroidUtil.Companion.pxFromDp
 import com.partnerkin.teststories.utils.MaterialMotion
+import com.partnerkin.teststories.views.listeners.StoryLoadingListener
 import jp.wasabeef.glide.transformations.BlurTransformation
 
+@Suppress("PrivatePropertyName")
 class StoryPlayerView : FrameLayout {
 
     private val TAG = "StoryPlayerView"

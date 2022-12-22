@@ -1,10 +1,10 @@
-package com.partnerkin.app.ui.views.story.progress_bar
+package com.partnerkin.teststories.views.progress_bar
 
 import android.annotation.SuppressLint
 import android.content.Context
-import android.util.Log
 import android.view.View
 import android.widget.LinearLayout
+import com.partnerkin.teststories.views.listeners.ProgressListener
 
 
 @SuppressLint("ViewConstructor")
@@ -37,12 +37,6 @@ class StoriesProgressView(
 
     private var isSkipStart = false
     private var isReverseStart = false
-
-    interface ProgressListener {
-        fun onNext()
-        fun onPrev()
-        fun onComplete()
-    }
 
     init {
         orientation = HORIZONTAL
@@ -84,13 +78,9 @@ class StoriesProgressView(
     }
 
     fun skip() {
-        Log.e("test", "skip")
         if (isSkipStart || isReverseStart) return
-        Log.e("test", "skip 2")
         if (isComplete) return
-        Log.e("test", "skip 3")
         if (_currentStoryIndex < 0) return
-        Log.e("test", "skip 4")
         val p : StoryProgressBar = progressBars[_currentStoryIndex]
         isSkipStart = true
         _isStart = false
@@ -99,13 +89,9 @@ class StoriesProgressView(
     }
 
     fun reverse() {
-        Log.e("test", "reverse")
         if (isSkipStart || isReverseStart) return
-        Log.e("test", "reverse2")
         if (isComplete) return
-        Log.e("test", "reverse3")
         if (_currentStoryIndex < 0) return
-        Log.e("test", "reverse4")
         val p : StoryProgressBar = progressBars[_currentStoryIndex]
         isReverseStart = true
         _isStart = false

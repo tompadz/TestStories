@@ -1,10 +1,12 @@
 package com.partnerkin.teststories.views
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.Color
 import android.util.AttributeSet
 import android.util.Log
 import android.view.Gravity
+import android.view.MotionEvent
 import android.view.ViewGroup
 import android.view.ViewGroup.LayoutParams.MATCH_PARENT
 import android.widget.FrameLayout
@@ -13,16 +15,21 @@ import androidx.core.graphics.drawable.toDrawable
 import androidx.core.graphics.toColor
 import androidx.media3.common.MediaItem
 import androidx.media3.exoplayer.ExoPlayer
-import com.partnerkin.app.ui.views.story.progress_bar.StoriesProgressView
+import com.partnerkin.teststories.views.progress_bar.StoriesProgressView
 import com.partnerkin.teststories.models.StoryMedia
+import com.partnerkin.teststories.utils.AndroidUtil.Companion.getDeviceWidth
 import com.partnerkin.teststories.utils.AndroidUtil.Companion.pxFromDp
 import com.partnerkin.teststories.utils.AndroidUtil.Companion.setCornerRadiusOfView
+import com.partnerkin.teststories.views.listeners.ProgressListener
+import com.partnerkin.teststories.views.listeners.StoryCompletionListener
+import com.partnerkin.teststories.views.listeners.StoryLoadingListener
 
 @Suppress("PrivatePropertyName")
 class StoryView : LinearLayout {
 
     private val TAG = "StoryView"
-
+    private val DEBUG = true
+    private var LONG_CLICK_TIME_LIMIT = 500L
     private val VIEW_CORNER_RADIUS = 10f.pxFromDp(context).toFloat()
     private val CONTENT_BACKGROUND_COLOR = Color.parseColor("#373737").toColor()
     private val PROGRESS_HORIZONTAL_PADDING = 16f.pxFromDp(context)
@@ -33,9 +40,14 @@ class StoryView : LinearLayout {
     private lateinit var storyPlayer : StoryPlayerView
     private lateinit var progressBar : StoriesProgressView
 
-    private var storyCompletionListener : StoryCompletionListener? = null
+    private val screenWidth = resources.getDeviceWidth()
     private val storyMedias = mutableListOf<StoryMedia>()
+    private var storyCompletionListener : StoryCompletionListener? = null
     private var currentMediaIndex = 0
+    private var storyPressingTime = 0L
+
+    var isPause = false
+        private set
 
     constructor(context: Context) : super(context, null) {
         initAllViews()
@@ -71,6 +83,7 @@ class StoryView : LinearLayout {
             )
             background = CONTENT_BACKGROUND_COLOR.toDrawable()
             setCornerRadiusOfView(VIEW_CORNER_RADIUS)
+            setOnTouchListener(onTouchListener)
         }
         addView(contentLayout)
     }
@@ -118,6 +131,7 @@ class StoryView : LinearLayout {
     /**
      * Public functions
      */
+
     fun setPreview(preview:String, lowPreview:String) = storyPlayer.setPreview(preview, lowPreview)
 
     fun showPreview() = storyPlayer.showPreview()
@@ -125,6 +139,20 @@ class StoryView : LinearLayout {
     fun showVideo()  = storyPlayer.showVideo()
 
     fun getPlayer() : ExoPlayer? = storyPlayer.player
+
+    fun pause() {
+        progressBar.pause()
+        exoPlayer?.pause()
+        debugLogI("onPause")
+        isPause = true
+    }
+
+    fun resume() {
+        progressBar.resume()
+        exoPlayer?.play()
+        debugLogI("onResume")
+        isPause = false
+    }
 
     fun setStoryCompletionListener(listener : StoryCompletionListener) {
         storyCompletionListener = listener
@@ -136,10 +164,12 @@ class StoryView : LinearLayout {
             if (value == null) {
                 progressBar.destroy()
             }
+            debugLogI("exo player setup - $exoPlayer")
             storyPlayer.player = value
         }
 
     fun setStories(list : List<StoryMedia>) {
+        debugLogI("onSetStories | stories size - ${list.size}")
         currentMediaIndex = 0
         progressBar.setStoriesCount(list.size)
         storyMedias.apply {
@@ -150,6 +180,7 @@ class StoryView : LinearLayout {
     }
 
     fun loadFirstVideo(player : ExoPlayer) {
+        debugLogI("on load first video")
         currentMediaIndex = 0
         val storyMedia = storyMedias[0]
         setStoryPreview(0, false)
@@ -173,6 +204,7 @@ class StoryView : LinearLayout {
     private fun playStoryMedia() {
         val storyMedia = storyMedias[currentMediaIndex]
         setStoryPreview(currentMediaIndex, true)
+        debugLogI("load story media from index - $currentMediaIndex")
         exoPlayer !!.stop(true)
         exoPlayer !!.setMediaItem(MediaItem.fromUri(storyMedia.url))
         exoPlayer !!.prepare()
@@ -186,21 +218,70 @@ class StoryView : LinearLayout {
         }catch (t:Throwable) {
             progressBar.setStoriesCount(storyMedias.size)
             progressBar.destroy()
-            Log.e(TAG, t.message ?: "error")
+            debugLogE(t.message ?: "error")
         }
+    }
+
+    private fun checkStoryClick(newTime : Long, event : MotionEvent) : Boolean {
+        val clickTime = newTime - storyPressingTime
+        return when {
+            clickTime > LONG_CLICK_TIME_LIMIT -> {
+                resume()
+                true
+            }
+            else -> {
+                val xPos = event.rawX
+                val halfScreen = screenWidth / 2
+                if (xPos > halfScreen) {
+                    progressBar.skip()
+                } else {
+                    progressBar.reverse()
+                }
+                resume()
+                true
+            }
+        }
+    }
+
+    private fun debugLogI(text:String) {
+        if (DEBUG) Log.i(TAG, text)
+    }
+    private fun debugLogE(text : String) {
+        if (DEBUG) Log.e(TAG, text)
+    }
+
+    /**
+     * Listeners
+     */
+
+    @SuppressLint("ClickableViewAccessibility")
+    private val onTouchListener = OnTouchListener { _, event ->
+        when (event.action) {
+            MotionEvent.ACTION_DOWN -> {
+                storyPressingTime = System.currentTimeMillis()
+                pause()
+                return@OnTouchListener true
+            }
+            MotionEvent.ACTION_UP -> {
+                val now = System.currentTimeMillis()
+                return@OnTouchListener checkStoryClick(now, event)
+            }
+        }
+        false
     }
 
     private val storyPlayerLoadingListener = object : StoryLoadingListener {
         override fun onStoryLoading(isLoading : Boolean) {
             if (! isLoading) {
+                resume()
                 setProgressDuration()
             }
         }
     }
 
-    private val progressListener = object : StoriesProgressView.ProgressListener {
+    private val progressListener = object : ProgressListener {
         override fun onNext() {
-            Log.i(TAG, "on story skip")
+            debugLogI("on story skip")
             if (currentMediaIndex != storyMedias.size - 1) {
                 ++currentMediaIndex
                 playStoryMedia()
@@ -208,7 +289,7 @@ class StoryView : LinearLayout {
         }
 
         override fun onPrev() {
-            Log.i(TAG, "on story reverse")
+            debugLogI("on story reverse")
             if (currentMediaIndex != 0) {
                 --currentMediaIndex
             }
@@ -216,7 +297,7 @@ class StoryView : LinearLayout {
         }
 
         override fun onComplete() {
-            Log.i(TAG, "on story complete")
+            debugLogI("on story complete")
             exoPlayer?.stop(true)
             setStoryPreview(0, true)
             storyCompletionListener?.onComplete()

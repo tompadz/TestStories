@@ -8,7 +8,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.partnerkin.teststories.databinding.ItemStoryBinding
 import com.partnerkin.teststories.models.StoryInfo
 import com.partnerkin.teststories.models.StoryMedia
-import com.partnerkin.teststories.views.StoryCompletionListener
+import com.partnerkin.teststories.views.listeners.StoryCompletionListener
 import com.partnerkin.teststories.views.VideoPlayerEventListener
 
 class StoryAdapter(val completionListener : StoryCompletionListener) : RecyclerView.Adapter<StoryAdapter.StoryViewHolder>() {

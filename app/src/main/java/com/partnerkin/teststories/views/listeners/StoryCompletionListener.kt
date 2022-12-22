@@ -1,6 +1,4 @@
-package com.partnerkin.teststories.views
-
-
+package com.partnerkin.teststories.views.listeners
 
 interface StoryCompletionListener {
     fun onComplete()

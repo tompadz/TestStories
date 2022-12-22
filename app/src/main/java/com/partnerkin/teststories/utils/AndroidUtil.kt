@@ -1,6 +1,8 @@
 package com.partnerkin.teststories.utils
 
 import android.content.Context
+import android.content.res.Resources
+import android.content.res.Resources.getSystem
 import android.graphics.Outline
 import android.view.View
 import android.view.ViewOutlineProvider
@@ -22,6 +24,9 @@ class AndroidUtil {
             }
             clipToOutline = true
         }
+
+        fun Resources.getDeviceWidth(): Int = getSystem().displayMetrics.widthPixels
+        fun Resources.getDeviceHeight(): Int = getSystem().displayMetrics.heightPixels
     }
 
 }

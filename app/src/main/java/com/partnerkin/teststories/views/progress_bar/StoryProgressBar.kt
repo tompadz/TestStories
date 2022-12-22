@@ -1,4 +1,4 @@
-package com.partnerkin.app.ui.views.story.progress_bar
+package com.partnerkin.teststories.views.progress_bar
 
 import android.content.Context
 import android.graphics.Color

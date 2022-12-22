@@ -1,9 +1,7 @@
-package com.partnerkin.app.ui.views.story.progress_bar
+package com.partnerkin.teststories.views.progress_bar
 
-import android.util.Log
 import android.view.animation.ScaleAnimation
 import android.view.animation.Transformation
-
 
 class StoryProgressScaleAnimation(
     fromX : Float,

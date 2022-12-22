@@ -9,7 +9,7 @@ import com.partnerkin.teststories.adapters.StoryAdapter
 import com.partnerkin.teststories.utils.AndroidUtil.Companion.pxFromDp
 import com.partnerkin.teststories.utils.AndroidUtil.Companion.setCornerRadiusOfView
 import com.partnerkin.teststories.utils.getStories
-import com.partnerkin.teststories.views.StoryCompletionListener
+import com.partnerkin.teststories.views.listeners.StoryCompletionListener
 
 class MainActivity : AppCompatActivity(), StoryCompletionListener {
 
