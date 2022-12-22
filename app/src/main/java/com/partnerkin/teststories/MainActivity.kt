@@ -8,8 +8,10 @@ import com.partnerkin.teststories.databinding.ActivityMainBinding
 import com.partnerkin.teststories.adapters.StoryAdapter
 import com.partnerkin.teststories.utils.AndroidUtil.Companion.pxFromDp
 import com.partnerkin.teststories.utils.AndroidUtil.Companion.setCornerRadiusOfView
+import com.partnerkin.teststories.utils.getStories
+import com.partnerkin.teststories.views.StoryCompletionListener
 
-class MainActivity : AppCompatActivity() {
+class MainActivity : AppCompatActivity(), StoryCompletionListener {
 
     private lateinit var binding : ActivityMainBinding
 
@@ -19,12 +21,14 @@ class MainActivity : AppCompatActivity() {
         setContentView(binding.root)
 
         binding.apply {
-            val adapter = StoryAdapter()
+            val adapter = StoryAdapter(this@MainActivity)
             testRV.adapter = adapter
             testRV.hasFixedSize()
             testRV.setCornerRadiusOfView(10f.pxFromDp(context = applicationContext).toFloat())
             val snapHelper : SnapHelper = PagerSnapHelper()
             snapHelper.attachToRecyclerView(testRV)
+
+            adapter.setData(getStories())
         }
     }
 
@@ -36,6 +40,13 @@ class MainActivity : AppCompatActivity() {
     override fun onResume() {
         super.onResume()
         binding.testRV.changePlayingState(true)
+    }
+
+    override fun onComplete() {
+        binding.apply {
+            val position = testRV.findCurrentVideoPosition()
+            testRV.smoothScrollToPosition(position + 1)
+        }
     }
 
 }

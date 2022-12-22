@@ -1,37 +1,49 @@
 package com.partnerkin.teststories.adapters
 
+import android.annotation.SuppressLint
 import android.view.LayoutInflater
 import android.view.ViewGroup
-import androidx.media3.common.MediaItem
 import androidx.media3.exoplayer.ExoPlayer
 import androidx.recyclerview.widget.RecyclerView
 import com.partnerkin.teststories.databinding.ItemStoryBinding
 import com.partnerkin.teststories.models.StoryInfo
+import com.partnerkin.teststories.models.StoryMedia
+import com.partnerkin.teststories.views.StoryCompletionListener
+import com.partnerkin.teststories.views.VideoPlayerEventListener
 
+class StoryAdapter(val completionListener : StoryCompletionListener) : RecyclerView.Adapter<StoryAdapter.StoryViewHolder>() {
 
-class StoryAdapter() : RecyclerView.Adapter<StoryAdapter.StoryViewHolder>() {
+    private var stories = mutableListOf<StoryInfo>()
 
-    inner class StoryViewHolder(private val binding : ItemStoryBinding) : RecyclerView.ViewHolder(binding.root), VideoPlayerEventListener {
+    @SuppressLint("NotifyDataSetChanged")
+    fun setData(data:List<StoryInfo>) {
+        stories.addAll(data)
+        notifyDataSetChanged()
+    }
 
-        private var item: StoryInfo? = null
+    inner class StoryViewHolder(private val binding : ItemStoryBinding) : RecyclerView.ViewHolder(binding.root),
+        VideoPlayerEventListener {
 
-        fun bind(videoItem: StoryInfo) {
-            item = videoItem
-            with(item) {
-                binding.storyView.setPreview(item !!.preview)
+        private var item: StoryMedia? = null
+
+        fun bind(storyMedia : List<StoryMedia>) {
+            binding.apply {
+                item = storyMedia[0]
+                storyView.setStoryCompletionListener(completionListener)
+                storyView.setStories(storyMedia)
             }
         }
 
         override fun onPrePlay(player : ExoPlayer) {
             binding.storyView.showPreview()
             with(player) {
-                playVideo()
-                binding.storyView.setPlayer(this)
+                binding.storyView.loadFirstVideo(this)
+                binding.storyView.exoPlayer = this
             }
         }
 
         override fun onPlayCanceled() {
-            binding.storyView.setPlayer(null)
+            binding.storyView.exoPlayer = null
             binding.storyView.showPreview()
         }
 
@@ -41,13 +53,6 @@ class StoryAdapter() : RecyclerView.Adapter<StoryAdapter.StoryViewHolder>() {
                    binding.storyView.showVideo()
                 }
             }, DELAY_BEFORE_HIDE_THUMBNAIL)
-        }
-
-        private fun ExoPlayer.playVideo() {
-            stop(true)
-            val videoUrl = item?.url ?: return
-            setMediaItem(MediaItem.fromUri(videoUrl))
-            prepare()
         }
     }
 
@@ -63,17 +68,14 @@ class StoryAdapter() : RecyclerView.Adapter<StoryAdapter.StoryViewHolder>() {
     }
 
     override fun onBindViewHolder(holder : StoryViewHolder, position : Int) {
-        val item = StoryInfo(
-            "https://partnerkin.com/uploads/apps/stories/e4c2c7c7e5dfd9dcb5d641d33a223102.mp4",
-            "https://partnerkin.com/uploads/apps/stories/e4c2c7c7e5dfd9dcb5d641d33a223102_low.jpg"
-        )
-        holder.bind(item)
+        val item = stories[position]
+        holder.bind(item.stories)
     }
 
-    override fun getItemCount() : Int = 50
+    override fun getItemCount() : Int = stories.size
 
     companion object {
-        private const val DELAY_BEFORE_HIDE_THUMBNAIL = 500L
+        private const val DELAY_BEFORE_HIDE_THUMBNAIL = 300L
     }
 
 }

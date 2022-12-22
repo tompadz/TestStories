@@ -1,4 +1,4 @@
-package com.partnerkin.teststories.adapters
+package com.partnerkin.teststories.views
 
 import android.content.Context
 import android.graphics.Point
@@ -11,7 +11,6 @@ import androidx.media3.common.Player
 import androidx.media3.exoplayer.ExoPlayer
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.partnerkin.teststories.views.StoryExoPlayer
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.channels.Channel
@@ -34,7 +33,7 @@ class StoryRecyclerView @JvmOverloads constructor(
 
         with(playerVideo) {
             playWhenReady = true
-            repeatMode = Player.REPEAT_MODE_ALL
+            repeatMode = Player.REPEAT_MODE_OFF
             addListener(object : Player.Listener {
                 override fun onIsPlayingChanged(isPlaying: Boolean) {
                     if (isPlaying) currentVideoHolder?.onPlay()
@@ -106,7 +105,7 @@ class StoryRecyclerView @JvmOverloads constructor(
         }
     }
 
-    private fun findCurrentVideoPosition(): Int {
+    fun findCurrentVideoPosition(): Int {
         var result = NO_POSITION
         val linearLayoutManager = layoutManager as LinearLayoutManager
         val firstPosition = linearLayoutManager.findFirstVisibleItemPosition()

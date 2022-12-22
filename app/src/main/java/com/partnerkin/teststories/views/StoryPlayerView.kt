@@ -20,6 +20,7 @@ import androidx.media3.ui.AspectRatioFrameLayout
 import androidx.media3.ui.PlayerView
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.engine.DiskCacheStrategy
+import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions
 import com.bumptech.glide.request.RequestOptions
 import com.google.android.material.progressindicator.CircularProgressIndicator
 import com.google.android.material.snackbar.Snackbar
@@ -42,8 +43,13 @@ class StoryPlayerView : FrameLayout {
     private lateinit var progressBar : ProgressBar
     private lateinit var progressCardContainer : CardView
 
+    private var listener : StoryLoadingListener? = null
+
     var isLoading = true
-        private set
+        private set(value) {
+            field = value
+            listener?.onStoryLoading(value)
+        }
 
     var isError = false
         private set
@@ -128,10 +134,19 @@ class StoryPlayerView : FrameLayout {
      * Public functions
      */
 
-    fun setPreview(url:String) {
+    fun setLoadingListener(listener: StoryLoadingListener) {
+        this.listener = listener
+    }
+
+    fun setPreview(preview:String, lowPreview:String) {
         Glide.with(context)
-            .load(url)
-            .apply(RequestOptions.bitmapTransform(BlurTransformation(55, 3)))
+            .load(preview)
+            .thumbnail(
+                Glide.with(context)
+                    .load(lowPreview)
+                    .apply(RequestOptions.bitmapTransform(BlurTransformation(55, 3)))
+            )
+            .transition(DrawableTransitionOptions.withCrossFade(100))
             .diskCacheStrategy(DiskCacheStrategy.ALL)
             .into(previewView)
     }
@@ -154,6 +169,8 @@ class StoryPlayerView : FrameLayout {
                 addPlayerLoadingListener()
             }
         }
+
+    val duration get() = player?.duration
 
     /**
      * Private functions
