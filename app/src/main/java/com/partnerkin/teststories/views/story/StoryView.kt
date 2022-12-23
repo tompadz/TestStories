@@ -32,9 +32,7 @@ import com.partnerkin.teststories.utils.AndroidUtil.Companion.pxFromDp
 import com.partnerkin.teststories.utils.AndroidUtil.Companion.setCornerRadiusOfView
 import com.partnerkin.teststories.views.buttons.StoryButtonWithIcon
 import com.partnerkin.teststories.views.buttons.StoryButtonWithText
-import com.partnerkin.teststories.views.listeners.ProgressListener
-import com.partnerkin.teststories.views.listeners.StoryCompletionListener
-import com.partnerkin.teststories.views.listeners.StoryLoadingListener
+import com.partnerkin.teststories.views.listeners.*
 
 @Suppress("PrivatePropertyName")
 class StoryView : LinearLayout {
@@ -77,6 +75,7 @@ class StoryView : LinearLayout {
     private val screenWidth = resources.getDeviceWidth()
     private val storyMedias = mutableListOf<StoryMedia>()
     private var storyCompletionListener : StoryCompletionListener? = null
+    private var storyButtonClickListener : StoryButtonClickListener? = null
     private var currentMediaIndex = 0
     private var storyPressingTime = 0L
 
@@ -199,6 +198,9 @@ class StoryView : LinearLayout {
                     LIKE_BUTTON_PADDING,
                 )
             }
+            setOnClickListener {
+                storyButtonClickListener?.onLikeClick()
+            }
             setIcon(R.drawable.ic_baseline_favorite_border_24)
         }
         contentLayout.addView(likeButton)
@@ -210,6 +212,9 @@ class StoryView : LinearLayout {
                 WRAP_CONTENT,
                 WRAP_CONTENT
             )
+            setOnClickListener {
+                storyButtonClickListener?.onCommentsClick()
+            }
             setIcon(R.drawable.ic_outline_mode_comment_24)
         }
         buttonsLayout.addView(commentsButton)
@@ -223,6 +228,9 @@ class StoryView : LinearLayout {
                 1f
             ).apply {
                 setMargins(0, 0, BUTTONS_ITEM_PADDING, 0)
+            }
+            setOnClickListener {
+                storyButtonClickListener?.onWriteCommentsClick()
             }
             setText("Комментировать...")
         }
@@ -277,6 +285,9 @@ class StoryView : LinearLayout {
                     CLOSE_BUTTON_PADDING_VERTICAL
                 )
             }
+            setOnClickListener {
+                storyButtonClickListener?.onCloseClick()
+            }
             ImageViewCompat.setImageTintList(
                 this, ColorStateList.valueOf(Color.WHITE)
             )
@@ -296,21 +307,27 @@ class StoryView : LinearLayout {
     fun getPlayer() : ExoPlayer? = storyPlayer.player
 
     fun pause() {
-        progressBar.pause()
+        if (isPause) return
         exoPlayer?.pause()
-        debugLogI("onPause")
+        progressBar.pause()
         isPause = true
+        debugLogI("onPause")
     }
 
     fun resume() {
+        if (!isPause) return
         progressBar.resume()
         exoPlayer?.play()
-        debugLogI("onResume")
         isPause = false
+        debugLogI("onResume")
     }
 
     fun setStoryCompletionListener(listener : StoryCompletionListener) {
         storyCompletionListener = listener
+    }
+
+    fun setStoryButtonClickListener(listener : StoryButtonClickListener) {
+        storyButtonClickListener = listener
     }
 
     var exoPlayer : ExoPlayer? = null
@@ -443,8 +460,12 @@ class StoryView : LinearLayout {
     private val storyPlayerLoadingListener = object : StoryLoadingListener {
         override fun onStoryLoading(isLoading : Boolean) {
             if (! isLoading) {
-                resume()
+                if (isPause) {
+                    resume()
+                }
                 setProgressDuration()
+            }else {
+                pause()
             }
         }
     }

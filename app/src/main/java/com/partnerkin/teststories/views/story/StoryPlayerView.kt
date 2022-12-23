@@ -45,12 +45,12 @@ class StoryPlayerView : FrameLayout {
     private lateinit var progressBar : ProgressBar
     private lateinit var progressCardContainer : CardView
 
-    private var listener : StoryLoadingListener? = null
+    private var loadingListener : StoryLoadingListener? = null
 
     var isLoading = true
         private set(value) {
             field = value
-            listener?.onStoryLoading(value)
+            loadingListener?.onStoryLoading(value)
         }
 
     var isError = false
@@ -137,7 +137,7 @@ class StoryPlayerView : FrameLayout {
      */
 
     fun setLoadingListener(listener: StoryLoadingListener) {
-        this.listener = listener
+        this.loadingListener = listener
     }
 
     fun setPreview(preview:String, lowPreview:String) {

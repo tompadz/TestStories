@@ -2,6 +2,7 @@ package com.partnerkin.teststories.views.progress_bar
 
 import android.annotation.SuppressLint
 import android.content.Context
+import android.util.Log
 import android.view.View
 import android.widget.LinearLayout
 import com.partnerkin.teststories.views.listeners.ProgressListener
@@ -126,15 +127,24 @@ class StoriesProgressView(
     }
 
     fun pause() {
-        if (_currentStoryIndex < 0) return
-        progressBars[_currentStoryIndex].pauseProgress()
-        _isPause = true
+        try {
+            if (_currentStoryIndex < 0) return
+            progressBars[_currentStoryIndex].pauseProgress()
+            _isPause = true
+        }catch (t:Throwable) {
+            destroy()
+        }
     }
 
     fun resume() {
-        if (_currentStoryIndex < 0) return
-        progressBars[_currentStoryIndex].resumeProgress()
-        _isPause = false
+        try {
+            if (_currentStoryIndex < 0) return
+            progressBars[_currentStoryIndex].resumeProgress()
+            _isPause = false
+        }catch (t:Throwable) {
+            destroy()
+        }
+
     }
 
     private fun callback(index : Int) : StoryProgressBar.Callback {

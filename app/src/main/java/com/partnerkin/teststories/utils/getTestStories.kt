@@ -7,6 +7,11 @@ fun getStories() = listOf(
     StoryInfo(
         stories = listOf(
             StoryMedia(
+                "https://partnerkin.com/uploads/apps/stories/23a2db19eaa828aa480ffd7f088ec6b3.mp4",
+                "https://psv4.userapi.com/c237031/u239859595/docs/d36/485b97e9b1e5/video-capture-5651.png?extra=JdeV4AoLALwF8Pny3l0UIqiEvuEo1D3Z43gexMODEeljVsDBOsIKTjHNHFSvvakGZvW3HTKblk-zD51w8hrR4F9jqRAjtll2RlAwaw5WKXt7y2T47CWt3E6QQqDwhZvEnNu2LmcuZZ5d7Dwne7Nw3Dp0",
+                "https://partnerkin.com/uploads/apps/stories/9417bbb02895458b941f6208ea5a016b_low.jpg"
+            ),
+            StoryMedia(
                 "https://partnerkin.com/uploads/apps/stories/9417bbb02895458b941f6208ea5a016b.mp4",
                 "https://psv4.userapi.com/c237031/u239859595/docs/d36/485b97e9b1e5/video-capture-5651.png?extra=JdeV4AoLALwF8Pny3l0UIqiEvuEo1D3Z43gexMODEeljVsDBOsIKTjHNHFSvvakGZvW3HTKblk-zD51w8hrR4F9jqRAjtll2RlAwaw5WKXt7y2T47CWt3E6QQqDwhZvEnNu2LmcuZZ5d7Dwne7Nw3Dp0",
                 "https://partnerkin.com/uploads/apps/stories/9417bbb02895458b941f6208ea5a016b_low.jpg"

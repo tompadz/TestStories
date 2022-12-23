@@ -11,6 +11,7 @@ import androidx.media3.common.Player
 import androidx.media3.exoplayer.ExoPlayer
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.partnerkin.teststories.views.listeners.StoryPlayerEventListener
 import com.partnerkin.teststories.views.story.StoryExoPlayer
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -25,7 +26,7 @@ class StoryRecyclerView @JvmOverloads constructor(
 ) : RecyclerView(context, attrs, defStyleAttr) {
 
     private val playerVideo = StoryExoPlayer(context).buildPlayer()
-    var currentVideoHolder: VideoPlayerEventListener? = null
+    var currentVideoHolder: StoryPlayerEventListener? = null
     private var videoItemHeight = 0
     private var screenHeight = 0
 
@@ -50,7 +51,7 @@ class StoryRecyclerView @JvmOverloads constructor(
 
             override fun onChildViewDetachedFromWindow(view: View) {
                 val holder = findContainingViewHolder(view)
-                if (holder is VideoPlayerEventListener) {
+                if (holder is StoryPlayerEventListener) {
                     holder.onPlayCanceled()
                 }
             }
@@ -60,12 +61,11 @@ class StoryRecyclerView @JvmOverloads constructor(
         screenHeight = screenSize.y
     }
 
-    //todo
     fun changePlayingState(play: Boolean) {
-        if (play) playerVideo.play() else playerVideo.pause()
+        if (play) currentVideoHolder?.onResume() else currentVideoHolder?.onPause()
     }
 
-    private fun playVideo(targetViewHolder: VideoPlayerEventListener?) {
+    private fun playVideo(targetViewHolder: StoryPlayerEventListener?) {
         if (currentVideoHolder != null && currentVideoHolder == targetViewHolder) return
         try {
             currentVideoHolder?.onPlayCanceled()
@@ -77,7 +77,7 @@ class StoryRecyclerView @JvmOverloads constructor(
     }
 
     @OptIn(ExperimentalCoroutinesApi::class)
-    private fun videoViewHolderChanges(): Flow<VideoPlayerEventListener?> {
+    private fun videoViewHolderChanges(): Flow<StoryPlayerEventListener?> {
         return callbackFlow {
             val listener = object : OnScrollListener() {
                 override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
@@ -94,12 +94,12 @@ class StoryRecyclerView @JvmOverloads constructor(
             .flowOn(IO)
     }
 
-    private fun getTargetVideoHolder(): VideoPlayerEventListener? {
+    private fun getTargetVideoHolder(): StoryPlayerEventListener? {
         try {
             val position = findCurrentVideoPosition()
             if (position == NO_POSITION) return null
             val viewHolder = findViewHolderForAdapterPosition(position)
-            return if (viewHolder is VideoPlayerEventListener) viewHolder else null
+            return if (viewHolder is StoryPlayerEventListener) viewHolder else null
         } catch (throwable: Throwable) {
             throwable.printStackTrace()
             return null
@@ -128,12 +128,6 @@ class StoryRecyclerView @JvmOverloads constructor(
         child.getLocationInWindow(location)
         return if (location[1] < 0) location[1] + videoItemHeight else screenHeight - location[1]
     }
-}
-
-interface VideoPlayerEventListener {
-    fun onPrePlay(player: ExoPlayer)
-    fun onPlayCanceled()
-    fun onPlay()
 }
 
 fun View.screenSize(): Point {

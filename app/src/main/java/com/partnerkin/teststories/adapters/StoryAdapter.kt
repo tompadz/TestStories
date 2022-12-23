@@ -8,29 +8,35 @@ import androidx.recyclerview.widget.RecyclerView
 import com.partnerkin.teststories.databinding.ItemStoryBinding
 import com.partnerkin.teststories.models.StoryInfo
 import com.partnerkin.teststories.models.StoryMedia
+import com.partnerkin.teststories.views.listeners.StoryButtonClickListener
 import com.partnerkin.teststories.views.listeners.StoryCompletionListener
-import com.partnerkin.teststories.views.rv.VideoPlayerEventListener
+import com.partnerkin.teststories.views.listeners.StoryPlayerEventListener
 
-class StoryAdapter(val completionListener : StoryCompletionListener) : RecyclerView.Adapter<StoryAdapter.StoryViewHolder>() {
+class StoryAdapter(
+    val completionListener : StoryCompletionListener,
+    val buttonClickListener : StoryButtonClickListener,
+) : RecyclerView.Adapter<StoryAdapter.StoryViewHolder>() {
 
     private var stories = mutableListOf<StoryInfo>()
 
     @SuppressLint("NotifyDataSetChanged")
-    fun setData(data:List<StoryInfo>) {
+    fun setData(data : List<StoryInfo>) {
         stories.addAll(data)
         notifyDataSetChanged()
     }
 
-    inner class StoryViewHolder(private val binding : ItemStoryBinding) : RecyclerView.ViewHolder(binding.root),
-        VideoPlayerEventListener {
+    inner class StoryViewHolder(private val binding : ItemStoryBinding) : RecyclerView.ViewHolder(binding.root), StoryPlayerEventListener {
 
-        private var item: StoryMedia? = null
+        private var item : StoryMedia? = null
 
         fun bind(storyMedia : List<StoryMedia>) {
             binding.apply {
                 item = storyMedia[0]
-                storyView.setStoryCompletionListener(completionListener)
-                storyView.setStories(storyMedia)
+                storyView.apply {
+                    setStoryCompletionListener(completionListener)
+                    setStoryButtonClickListener(buttonClickListener)
+                    setStories(storyMedia)
+                }
             }
         }
 
@@ -50,9 +56,17 @@ class StoryAdapter(val completionListener : StoryCompletionListener) : RecyclerV
         override fun onPlay() {
             itemView.postDelayed({
                 if (binding.storyView.getPlayer() != null) {
-                   binding.storyView.showVideo()
+                    binding.storyView.showVideo()
                 }
             }, DELAY_BEFORE_HIDE_THUMBNAIL)
+        }
+
+        override fun onPause() {
+            binding.storyView.pause()
+        }
+
+        override fun onResume() {
+            binding.storyView.resume()
         }
     }
 

@@ -1,5 +1,6 @@
 package com.partnerkin.teststories
 
+import android.content.Intent
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.PagerSnapHelper
@@ -9,9 +10,10 @@ import com.partnerkin.teststories.adapters.StoryAdapter
 import com.partnerkin.teststories.utils.AndroidUtil.Companion.pxFromDp
 import com.partnerkin.teststories.utils.AndroidUtil.Companion.setCornerRadiusOfView
 import com.partnerkin.teststories.utils.getStories
+import com.partnerkin.teststories.views.listeners.StoryButtonClickListener
 import com.partnerkin.teststories.views.listeners.StoryCompletionListener
 
-class MainActivity : AppCompatActivity(), StoryCompletionListener {
+class MainActivity : AppCompatActivity(), StoryCompletionListener, StoryButtonClickListener {
 
     private lateinit var binding : ActivityMainBinding
 
@@ -21,7 +23,10 @@ class MainActivity : AppCompatActivity(), StoryCompletionListener {
         setContentView(binding.root)
 
         binding.apply {
-            val adapter = StoryAdapter(this@MainActivity)
+            val adapter = StoryAdapter(
+                completionListener = this@MainActivity,
+                buttonClickListener = this@MainActivity
+            )
             testRV.adapter = adapter
             testRV.hasFixedSize()
             testRV.setCornerRadiusOfView(10f.pxFromDp(context = applicationContext).toFloat())
@@ -33,8 +38,8 @@ class MainActivity : AppCompatActivity(), StoryCompletionListener {
     }
 
     override fun onPause() {
-        super.onPause()
         binding.testRV.changePlayingState(false)
+        super.onPause()
     }
 
     override fun onResume() {
@@ -49,4 +54,23 @@ class MainActivity : AppCompatActivity(), StoryCompletionListener {
         }
     }
 
+    override fun onCloseClick() {
+        this.onBackPressed()
+    }
+
+    override fun onCommentsClick() {
+        onPause()
+        val sheet = SheetStoryComments() {   //dismiss
+            onResume()
+        }
+        sheet.show(supportFragmentManager, SheetStoryComments.TAG)
+    }
+
+    override fun onLikeClick() {
+
+    }
+
+    override fun onWriteCommentsClick() {
+        startActivity(Intent(this, TestActivity::class.java))
+    }
 }
