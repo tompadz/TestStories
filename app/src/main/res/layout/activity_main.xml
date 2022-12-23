@@ -15,7 +15,7 @@
         android:orientation="vertical"
         android:visibility="gone" />
 
-    <com.partnerkin.teststories.views.StoryRecyclerView
+    <com.partnerkin.teststories.views.rv.StoryRecyclerView
         android:id="@+id/testRV"
         app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
         android:layout_width="match_parent"

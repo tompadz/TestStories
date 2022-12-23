@@ -9,7 +9,7 @@ import com.partnerkin.teststories.databinding.ItemStoryBinding
 import com.partnerkin.teststories.models.StoryInfo
 import com.partnerkin.teststories.models.StoryMedia
 import com.partnerkin.teststories.views.listeners.StoryCompletionListener
-import com.partnerkin.teststories.views.VideoPlayerEventListener
+import com.partnerkin.teststories.views.rv.VideoPlayerEventListener
 
 class StoryAdapter(val completionListener : StoryCompletionListener) : RecyclerView.Adapter<StoryAdapter.StoryViewHolder>() {
 

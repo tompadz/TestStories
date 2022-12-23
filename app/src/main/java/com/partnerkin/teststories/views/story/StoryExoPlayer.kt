@@ -1,4 +1,4 @@
-package com.partnerkin.teststories.views
+package com.partnerkin.teststories.views.story
 
 import android.content.Context
 import androidx.media3.exoplayer.DefaultLoadControl

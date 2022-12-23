@@ -1,4 +1,4 @@
-package com.partnerkin.teststories.views
+package com.partnerkin.teststories.views.story
 
 import android.annotation.SuppressLint
 import android.content.Context

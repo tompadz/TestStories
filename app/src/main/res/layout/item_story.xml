@@ -3,7 +3,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <com.partnerkin.teststories.views.StoryView
+    <com.partnerkin.teststories.views.story.StoryView
         android:id="@+id/storyView"
         android:layout_width="match_parent"
         android:layout_height="match_parent"/>

@@ -1,4 +1,4 @@
-package com.partnerkin.teststories.views
+package com.partnerkin.teststories.views.rv
 
 import android.content.Context
 import android.graphics.Point
@@ -11,12 +11,12 @@ import androidx.media3.common.Player
 import androidx.media3.exoplayer.ExoPlayer
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.partnerkin.teststories.views.story.StoryExoPlayer
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.*
-
 
 class StoryRecyclerView @JvmOverloads constructor(
     context: Context,
@@ -60,6 +60,7 @@ class StoryRecyclerView @JvmOverloads constructor(
         screenHeight = screenSize.y
     }
 
+    //todo
     fun changePlayingState(play: Boolean) {
         if (play) playerVideo.play() else playerVideo.pause()
     }
